@@ -1,10 +1,11 @@
 # app/seed.py
 
 from random import choice as rc
-from app import create_app, db
-from app.models import Hero, Power, HeroPower
+from __init__ import create_app, db
+from models import Hero, Power, HeroPower
 
-# Create app context for db operations
+
+# Create and push app context
 app = create_app()
 
 if __name__ == '__main__':
@@ -44,7 +45,7 @@ if __name__ == '__main__':
             HeroPower(hero=rc(heroes), power=rc(powers), strength=rc(strengths))
             for _ in range(15)
         ]
-
         db.session.add_all(hero_powers)
+
         db.session.commit()
         print("✅ Done seeding!")
