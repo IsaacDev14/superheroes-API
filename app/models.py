@@ -56,3 +56,40 @@ class Power(db.Model):
         if not self.description or len(self.description) < 20:
             errors.append("Description must be at least 20 characters long.")
         return errors
+
+class HeroPower(db.Model):
+    """
+    Join model linking Hero and Power with a strength attribute.
+    """
+    __tablename__ = 'hero_powers'
+
+    id = db.Column(db.Integer, primary_key=True)
+    strength = db.Column(db.String, nullable=False)
+
+    # Foreign keys
+    hero_id = db.Column(db.Integer, db.ForeignKey('heroes.id'))
+    power_id = db.Column(db.Integer, db.ForeignKey('powers.id'))
+
+    def to_dict(self):
+        """
+        Serialize HeroPower to a dictionary including related Hero and Power.
+        """
+        return {
+            "id": self.id,
+            "strength": self.strength,
+            "hero_id": self.hero_id,
+            "power_id": self.power_id,
+            "hero": self.hero.to_dict(),
+            "power": self.power.to_dict()
+        }
+
+    def validate(self):
+        """
+        Custom validation for strength values.
+        Allowed: 'Strong', 'Weak', 'Average'
+        """
+        valid_strengths = ['Strong', 'Weak', 'Average']
+        errors = []
+        if self.strength not in valid_strengths:
+            errors.append("Strength must be one of: 'Strong', 'Weak', 'Average'")
+        return errors
