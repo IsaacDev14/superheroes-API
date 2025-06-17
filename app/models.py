@@ -24,3 +24,35 @@ class Hero(db.Model):
             "name": self.name,
             "super_name": self.super_name
         }
+
+class Power(db.Model):
+    """
+    Power model represents a unique superpower with a name and description.
+    """
+    __tablename__ = 'powers'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    description = db.Column(db.String, nullable=False)
+
+    # Relationship to HeroPower (one-to-many)
+    hero_powers = db.relationship('HeroPower', backref='power', cascade="all, delete")
+
+    def to_dict(self):
+        """
+        Serialize Power to a dictionary.
+        """
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description
+        }
+
+    def validate(self):
+        """
+        Custom validation to ensure description is present and >= 20 characters.
+        """
+        errors = []
+        if not self.description or len(self.description) < 20:
+            errors.append("Description must be at least 20 characters long.")
+        return errors
