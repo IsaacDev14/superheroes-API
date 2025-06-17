@@ -1,26 +1,31 @@
-# app/__init__.py
-
-# Import Flask and extensions
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from .config import Config  # Config class for app settings
+from flask_restful import Api
+from .config import Config
 
-# Initialize the database and migration objects (not yet bound to app)
+# Initialize extensions
 db = SQLAlchemy()
 migrate = Migrate()
 
 def create_app():
+    """
+    Create and configure the Flask app.
+    """
     app = Flask(__name__)
-
-    # Load configuration settings
     app.config.from_object(Config)
 
-    # Initialize extensions with the app
     db.init_app(app)
     migrate.init_app(app, db)
 
-    from .routes import api
-    app.register_blueprint(api) 
+    # Import and register resources
+    from .resources.hero_resource import HeroResource, HeroListResource
+    from .resources.power_resource import PowerResource, PowerListResource
+
+    api = Api(app)
+    api.add_resource(HeroListResource, "/heroes")
+    api.add_resource(HeroResource, "/heroes/<int:id>")
+    api.add_resource(PowerListResource, "/powers")
+    api.add_resource(PowerResource, "/powers/<int:id>")
 
     return app

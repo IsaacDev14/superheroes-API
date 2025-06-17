@@ -1,5 +1,8 @@
-# app/config.py
+import os
 
 class Config:
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///superheroes.db'  # Local DB file
-    SQLALCHEMY_TRACK_MODIFICATIONS = False  # Turn off unnecessary warnings
+    """
+    Configuration for the Flask app.
+    """
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite:///superheroes.db")
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
