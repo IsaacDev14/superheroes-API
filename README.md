@@ -26,15 +26,16 @@ A RESTful Flask API built for managing superheroes and their powers. Built with 
 .
 ├── app/
 │   ├── __init__.py
-│   ├── app.py
-│   ├── models.py
 │   ├── config.py
+│   ├── models.py
 │   ├── seed.py
 │   └── routes/
 │       ├── hero.py
 │       ├── power.py
 │       └── hero_power.py
 ├── migrations/
+├── instance/             # SQLite database goes here
+│   └── app.db            # (created after running migrations)
 ├── run.py
 ├── requirements.txt
 └── README.md
@@ -69,6 +70,8 @@ flask db init
 flask db migrate -m "Initial migration"
 flask db upgrade
 ```
+
+⚠️ The database will be created at `instance/app.db`. Make sure the `instance/` directory exists or is created automatically.
 
 ### 5. Seed the Database
 
@@ -124,9 +127,10 @@ Assigns a power to a hero. Requires:
 
 Import the provided Postman collection for testing the API.
 
-## 👩‍💻 Author
+## 👨‍💻 Author
 
 Isaac Mwiti Kubai
+
 ---
 
-**Happy Coding! **
+**Happy Coding!**
