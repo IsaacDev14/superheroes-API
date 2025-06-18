@@ -1,6 +1,8 @@
+#api/hero_power.py
+
 from flask_restful import Resource
 from flask import request
-from ..models import HeroPower, db, Hero, Power
+from ..models import HeroPower, Hero, Power, db
 
 class HeroPowerCreateResource(Resource):
     def post(self):
@@ -22,7 +24,6 @@ class HeroPowerCreateResource(Resource):
                 "hero": hero.to_dict(),
                 "power": power.to_dict()
             }, 201
-
         except Exception as e:
             db.session.rollback()
             return {"errors": [str(e)]}, 400

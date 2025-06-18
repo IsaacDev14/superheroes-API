@@ -1,16 +1,15 @@
+#app/seed.py
 from random import choice as rc
-from app import create_app
-from app.models import db, Hero, Power, HeroPower
+from . import create_app, db
+from .models import Hero, Power, HeroPower
 
 app = create_app()
 
 with app.app_context():
-    print("Clearing db...")
     HeroPower.query.delete()
     Hero.query.delete()
     Power.query.delete()
 
-    print("Seeding powers...")
     powers = [
         Power(name="super strength", description="gives the wielder super-human strengths"),
         Power(name="flight", description="gives the wielder the ability to fly through the skies at supersonic speed"),
@@ -19,7 +18,6 @@ with app.app_context():
     ]
     db.session.add_all(powers)
 
-    print("Seeding heroes...")
     heroes = [
         Hero(name="Kamala Khan", super_name="Ms. Marvel"),
         Hero(name="Doreen Green", super_name="Squirrel Girl"),
@@ -34,7 +32,6 @@ with app.app_context():
     ]
     db.session.add_all(heroes)
 
-    print("Adding powers to heroes...")
     strengths = ["Strong", "Weak", "Average"]
     hero_powers = [
         HeroPower(hero=hero, power=rc(powers), strength=rc(strengths))
@@ -42,4 +39,5 @@ with app.app_context():
     ]
     db.session.add_all(hero_powers)
     db.session.commit()
-    print("Done seeding!")
+    print("✅ Database seeded!")
+

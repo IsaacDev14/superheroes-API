@@ -1,4 +1,6 @@
-from flask_restful import Resource, reqparse
+#app/routes/power.py
+
+from flask_restful import Resource
 from flask import request
 from ..models import Power, db
 
@@ -10,9 +12,9 @@ class PowerListResource(Resource):
 class PowerDetailResource(Resource):
     def get(self, id):
         power = Power.query.get(id)
-        if power:
-            return power.to_dict(), 200
-        return {"error": "Power not found"}, 404
+        if not power:
+            return {"error": "Power not found"}, 404
+        return power.to_dict(), 200
 
 class PowerUpdateResource(Resource):
     def patch(self, id):
