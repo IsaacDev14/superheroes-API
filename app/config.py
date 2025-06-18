@@ -1,6 +1,11 @@
+# app/config.py
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Config:
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite:///superheroes.db")
+    """Base configuration for the Flask application."""
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///superheroes.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    JSON_SORT_KEYS = False  # To keep response order consistent
+    DEBUG = os.getenv('FLASK_ENV') == 'development'

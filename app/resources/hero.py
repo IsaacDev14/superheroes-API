@@ -1,20 +1,18 @@
-from flask_restful import Resource, reqparse
-from flask import jsonify
-from ..models import Hero
-from ..extensions import db
+# app/resources/hero.py
+from flask_restful import Resource
+from app.database import db
+from app.models import Hero
 
-class HeroListResource(Resource):
+class HeroList(Resource):
+    """Handle GET requests for all heroes."""
     def get(self):
-        # Return all heroes with id, name, super_name only
         heroes = Hero.query.all()
-        return jsonify([hero.to_dict(only=['id', 'name', 'super_name']) for hero in heroes])
+        return [hero.to_dict(only=('id', 'name', 'super_name')) for hero in heroes], 200
 
-class HeroResource(Resource):
-    def get(self, hero_id):
-        hero = Hero.query.get(hero_id)
+class HeroDetail(Resource):
+    """Handle GET requests for a single hero."""
+    def get(self, id):
+        hero = Hero.query.get(id)
         if not hero:
-            return {"error": "Hero not found"}, 404
-
-        # Include hero_powers with nested power details, limit recursion
-        hero_data = hero.to_dict()
-        return jsonify(hero_data)
+            return {'error': 'Hero not found'}, 404
+        return hero.to_dict(rules=('hero_powers.power',)), 200

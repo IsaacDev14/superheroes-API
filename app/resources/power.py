@@ -1,33 +1,35 @@
+# app/resources/power.py
 from flask_restful import Resource, reqparse
-from flask import jsonify, request
-from ..models import Power
-from ..extensions import db
+from app.database import db
+from app.models import Power
 
-class PowerListResource(Resource):
+class PowerList(Resource):
+    """Handle GET requests for all powers."""
     def get(self):
         powers = Power.query.all()
-        return jsonify([power.to_dict(only=['id', 'name', 'description']) for power in powers])
+        return [power.to_dict(only=('id', 'name', 'description')) for power in powers], 200
 
-class PowerResource(Resource):
-    def get(self, power_id):
-        power = Power.query.get(power_id)
+class PowerDetail(Resource):
+    """Handle GET and PATCH requests for a single power."""
+    def __init__(self):
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('description', type=str, required=True, help='Description is required')
+    
+    def get(self, id):
+        power = Power.query.get(id)
         if not power:
-            return {"error": "Power not found"}, 404
-        return jsonify(power.to_dict(only=['id', 'name', 'description']))
-
-    def patch(self, power_id):
-        power = Power.query.get(power_id)
+            return {'error': 'Power not found'}, 404
+        return power.to_dict(only=('id', 'name', 'description')), 200
+    
+    def patch(self, id):
+        power = Power.query.get(id)
         if not power:
-            return {"error": "Power not found"}, 404
-
-        parser = reqparse.RequestParser()
-        parser.add_argument('description', type=str, required=True, help="Description is required")
-        args = parser.parse_args()
-
+            return {'error': 'Power not found'}, 404
+        
+        args = self.parser.parse_args()
         try:
             power.description = args['description']
             db.session.commit()
-            return jsonify(power.to_dict(only=['id', 'name', 'description']))
-        except Exception as e:
-            db.session.rollback()
-            return {"errors": [str(e)]}, 400
+            return power.to_dict(only=('id', 'name', 'description')), 200
+        except ValueError as e:
+            return {'errors': [str(e)]}, 400

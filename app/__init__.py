@@ -1,24 +1,28 @@
+# app/__init__.py
 from flask import Flask
-from .extensions import db, migrate, api
-from .resources.hero import HeroListResource, HeroResource
-from .resources.power import PowerListResource, PowerResource
-from .resources.hero_power import HeroPowerResource
-from .config import Config
+from flask_sqlalchemy import SQLAlchemy
+from flask_alembic import Alembic
+from flask_restful import Api
+
+# Initialize extensions
+db = SQLAlchemy()
+alembic = Alembic()
+api = Api()
 
 def create_app():
+    """Application factory to initialize Flask app."""
     app = Flask(__name__)
-    app.config.from_object(Config)
-
-    # Initialize extensions with app
+    
+    # Load configuration
+    app.config.from_object('app.config.Config')
+    
+    # Initialize extensions
     db.init_app(app)
-    migrate.init_app(app, db)
+    alembic.init_app(app)
     api.init_app(app)
-
-    # Register resources and endpoints
-    api.add_resource(HeroListResource, '/heroes')
-    api.add_resource(HeroResource, '/heroes/<int:hero_id>')
-    api.add_resource(PowerListResource, '/powers')
-    api.add_resource(PowerResource, '/powers/<int:power_id>')
-    api.add_resource(HeroPowerResource, '/hero_powers')
-
+    
+    # Register blueprints or resources
+    from app.resources import initialize_resources
+    initialize_resources(api)
+    
     return app

@@ -1,76 +1,77 @@
-from .extensions import db
+# app/models.py
+from app.database import db
+from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.orm import validates
 
-# Simple serialization mixin to control output
-class SerializeMixin:
-    def to_dict(self, only=None, exclude=None, recurse=1):
-        """Serialize model to dict with control on recursion depth"""
-        d = {}
-        for column in self.__table__.columns:
-            if only and column.name not in only:
-                continue
-            if exclude and column.name in exclude:
-                continue
-            d[column.name] = getattr(self, column.name)
-        
-        if recurse > 0:
-            for rel in self.__mapper__.relationships:
-                if only and rel.key not in only:
-                    continue
-                if exclude and rel.key in exclude:
-                    continue
-                related_obj = getattr(self, rel.key)
-                if related_obj is None:
-                    d[rel.key] = None
-                elif rel.uselist:
-                    d[rel.key] = [o.to_dict(recurse=recurse-1) for o in related_obj]
-                else:
-                    d[rel.key] = related_obj.to_dict(recurse=recurse-1)
-        return d
-
-class Hero(db.Model, SerializeMixin):
-    __tablename__ = "heroes"
-
+class Hero(db.Model, SerializerMixin):
+    """Hero model representing a superhero."""
+    __tablename__ = 'heroes'
+    
+    # Columns
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    super_name = db.Column(db.String(100), nullable=False)
-
-    # Relationship to HeroPower (one-to-many)
+    name = db.Column(db.String, nullable=False)
+    super_name = db.Column(db.String, nullable=False)
+    
+    # Relationships
     hero_powers = db.relationship('HeroPower', back_populates='hero', cascade='all, delete-orphan')
+    
+    # Serialization rules to limit recursion
+    serialize_rules = ('-hero_powers.hero',)
+    
+    def __repr__(self):
+        return f'<Hero {self.super_name}>'
 
-class Power(db.Model, SerializeMixin):
-    __tablename__ = "powers"
-
+class Power(db.Model, SerializerMixin):
+    """Power model representing a superpower."""
+    __tablename__ = 'powers'
+    
+    # Columns
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=False)
-
-    # Relationship to HeroPower (one-to-many)
+    
+    # Relationships
     hero_powers = db.relationship('HeroPower', back_populates='power', cascade='all, delete-orphan')
-
-    # Validation: description must be present and at least 20 chars
+    
+    # Serialization rules to limit recursion
+    serialize_rules = ('-hero_powers.power',)
+    
+    # Validations
     @validates('description')
     def validate_description(self, key, description):
+        """Ensure description is present and at least 20 characters long."""
         if not description or len(description) < 20:
-            raise ValueError("Description must be at least 20 characters long.")
+            raise ValueError('Description must be present and at least 20 characters long')
         return description
+    
+    def __repr__(self):
+        return f'<Power {self.name}>'
 
-class HeroPower(db.Model, SerializeMixin):
-    __tablename__ = "hero_powers"
-
+class HeroPower(db.Model, SerializerMixin):
+    """HeroPower model representing the relationship between Hero and Power."""
+    __tablename__ = 'hero_powers'
+    
+    # Columns
     id = db.Column(db.Integer, primary_key=True)
-    strength = db.Column(db.String(10), nullable=False)
+    strength = db.Column(db.String, nullable=False)
     hero_id = db.Column(db.Integer, db.ForeignKey('heroes.id'), nullable=False)
     power_id = db.Column(db.Integer, db.ForeignKey('powers.id'), nullable=False)
-
+    
     # Relationships
     hero = db.relationship('Hero', back_populates='hero_powers')
     power = db.relationship('Power', back_populates='hero_powers')
-
-    # Validation: strength must be Strong, Weak or Average
+    
+    # Serialization rules to limit recursion
+    serialize_rules = ('-hero.hero_powers', '-power.hero_powers')
+    
+    # Validations
     @validates('strength')
     def validate_strength(self, key, strength):
-        allowed = ['Strong', 'Weak', 'Average']
-        if strength not in allowed:
-            raise ValueError(f"Strength must be one of {allowed}")
+        """Ensure strength is one of 'Strong', 'Weak', or 'Average'."""
+        valid_strengths = ['Strong', 'Weak', 'Average']
+        if strength not in valid_strengths:
+            raise ValueError(f'Strength must be one of: {", ".join(valid_strengths)}')
         return strength
+    
+    def __repr__(self):
+        return f'<HeroPower hero_id={self.hero_id} power_id={self.power_id} strength={self.strength}>'

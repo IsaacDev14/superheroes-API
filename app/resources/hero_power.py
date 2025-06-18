@@ -1,33 +1,37 @@
+# app/resources/hero_power.py
 from flask_restful import Resource, reqparse
-from flask import jsonify
-from ..models import HeroPower, Hero, Power
-from ..extensions import db
+from app.database import db
+from app.models import HeroPower, Hero, Power
 
-class HeroPowerResource(Resource):
+class HeroPowerCreate(Resource):
+    """Handle POST requests to create a new HeroPower."""
+    def __init__(self):
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('strength', type=str, required=True, help='Strength is required')
+        self.parser.add_argument('hero_id', type=int, required=True, help='Hero ID is required')
+        self.parser.add_argument('power_id', type=int, required=True, help='Power ID is required')
+    
     def post(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('strength', type=str, required=True, choices=('Strong', 'Weak', 'Average'), help="Strength must be Strong, Weak, or Average")
-        parser.add_argument('power_id', type=int, required=True, help="power_id is required")
-        parser.add_argument('hero_id', type=int, required=True, help="hero_id is required")
-        args = parser.parse_args()
-
+        args = self.parser.parse_args()
+        
+        # Verify Hero and Power exist
         hero = Hero.query.get(args['hero_id'])
         power = Power.query.get(args['power_id'])
-
-        if not hero:
-            return {"errors": ["Hero not found"]}, 404
-        if not power:
-            return {"errors": ["Power not found"]}, 404
-
+        
+        if not hero or not power:
+            return {'errors': ['Hero or Power not found']}, 404
+        
+        # Create new HeroPower
+        hero_power = HeroPower(
+            strength=args['strength'],
+            hero_id=args['hero_id'],
+            power_id=args['power_id']
+        )
+        
         try:
-            hero_power = HeroPower(strength=args['strength'], hero=hero, power=power)
             db.session.add(hero_power)
             db.session.commit()
-            result = hero_power.to_dict()
-            # Add nested hero and power details
-            result['hero'] = hero.to_dict(only=['id', 'name', 'super_name'])
-            result['power'] = power.to_dict(only=['id', 'name', 'description'])
-            return jsonify(result)
-        except Exception as e:
+            return hero_power.to_dict(rules=('hero', 'power')), 201
+        except ValueError as e:
             db.session.rollback()
-            return {"errors": [str(e)]}, 400
+            return {'errors': [str(e)]}, 400
