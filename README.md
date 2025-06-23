@@ -1,8 +1,8 @@
-# 🦸 Superheroes API
+# Superheroes API
 
 A RESTful Flask API built for managing superheroes and their powers. Built with Flask-RESTful, SQLAlchemy, and Alembic.
 
-## 🚀 Features
+## Features
 
 - View a list of heroes and their super names
 - View detailed hero profiles including powers and strength level
@@ -10,7 +10,7 @@ A RESTful Flask API built for managing superheroes and their powers. Built with 
 - Assign powers to heroes with strength ratings (Strong, Average, Weak)
 - Validation errors and clean JSON responses
 
-## 🧱 Technologies Used
+## Technologies Used
 
 - Python 3.10+
 - Flask
@@ -20,7 +20,7 @@ A RESTful Flask API built for managing superheroes and their powers. Built with 
 - SQLite (for development)
 - Postman (for testing endpoints)
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 .
@@ -41,7 +41,7 @@ A RESTful Flask API built for managing superheroes and their powers. Built with 
 └── README.md
 ```
 
-## 🛠️ Setup Instructions
+## Setup Instructions
 
 ### 1. Clone the Repository
 
@@ -71,7 +71,7 @@ flask db migrate -m "Initial migration"
 flask db upgrade
 ```
 
-⚠️ The database will be created at `instance/app.db`. Make sure the `instance/` directory exists or is created automatically.
+ The database will be created at `instance/app.db`. Make sure the `instance/` directory exists or is created automatically.
 
 ### 5. Seed the Database
 
@@ -85,7 +85,7 @@ python app/seed.py
 python run.py
 ```
 
-## 🧪 API Endpoints
+##  API Endpoints
 
 ### GET /heroes
 
@@ -118,19 +118,20 @@ Assigns a power to a hero. Requires:
 }
 ```
 
-## ⚠️ Validations
+##  Validations
 
 - Power description must be at least 20 characters.
 - HeroPower strength must be "Strong", "Average", or "Weak".
 
-## 🔗 Postman Collection
+## Postman Collection
 
 Import the provided Postman collection for testing the API.
 
-## 👨‍💻 Author
+## Author
 
 Isaac Mwiti Kubai
 
 ---
 
-**Happy Coding!**
+** Linces **
+This project is for learning puporses 
